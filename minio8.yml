@@ -1,0 +1,207 @@
+# docker-compose.yml
+
+#1. Create docker secrets for minio before deploying stack
+#echo "secret" | docker secret create access_key -
+#echo "mysecret" | docker secret create secret_key -
+
+#2. Deploy eight minio server with individual CIO volume
+#docker stack deploy --compose-file=minio8.yml minio
+
+version: '3.1'
+
+services:
+  minio1:
+    image: minio/minio
+    volumes:
+      - minio1-data:/export
+    ports:
+      - "9001:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio2:
+    image: minio/minio
+    volumes:
+      - minio2-data:/export
+    ports:
+      - "9002:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio3:
+    image: minio/minio
+    volumes:
+      - minio3-data:/export
+    ports:
+      - "9003:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio4:
+    image: minio/minio
+    volumes:
+      - minio4-data:/export
+    ports:
+      - "9004:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio5:
+    image: minio/minio
+    volumes:
+      - minio5-data:/export
+    ports:
+      - "9005:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio6:
+    image: minio/minio
+    volumes:
+      - minio6-data:/export
+    ports:
+      - "9006:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio7:
+    image: minio/minio
+    volumes:
+      - minio7-data:/export
+    ports:
+      - "9007:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+
+  minio8:
+    image: minio/minio
+    volumes:
+      - minio8-data:/export
+    ports:
+      - "9008:9000"
+    networks:
+      - minio_distributed
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export
+    secrets:
+      - secret_key
+      - access_key
+      
+volumes:
+  minio1-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+
+  minio2-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+      
+  minio3-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+      
+  minio4-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+
+  minio5-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+
+  minio6-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+      
+  minio7-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+      
+  minio8-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+      
+networks:
+  minio_distributed:
+    driver: overlay
+
+secrets:
+  secret_key:
+    external: true
+  access_key:
+    external: true
+

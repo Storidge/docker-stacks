@@ -1,0 +1,45 @@
+# docker-compose.yml
+
+#1. Create docker secrets for minio before launching stack
+#echo "secret" | docker secret create access_key -
+#echo "mysecret" | docker secret create secret_key -
+
+#2. Deploy single minio server with single CIO volume
+#docker stack deploy --compose-file=minio.yml minio
+
+version: '3.1'
+
+services:
+  minio1:
+    image: minio/minio
+    volumes:
+      - minio1-data:/export
+    ports:
+      - "9001:9000"
+    networks:
+      - minionet
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+    command: server /export 
+    secrets:
+      - secret_key
+      - access_key
+
+volumes:
+  minio1-data:
+    driver: cio
+    driver_opts:
+      profile: "MINIO"
+    
+networks:
+  minionet:
+    driver: overlay
+
+secrets:
+  secret_key:
+    external: true
+  access_key:
+    external: true
