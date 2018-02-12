@@ -1,2 +1,2 @@
-# docker-stacks
-Example docker stacks to use with CIO (container I/O)
+# Docker example stacks
+This repository contains a list of example stacks to use with Storidge's CIO (container I/O) software. 
