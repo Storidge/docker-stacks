@@ -1,10 +1,10 @@
-# docker-compose.yml
+# wordpress-mysql.yml
 version: '3'
 services:
   db:
     image: mysql:5.7
     volumes:
-        # Pass volume mysql-data to mysql
+        # Pass volume named mysql-data to mysql container
       - "mysql-data:/var/lib/mysql"
     restart: always
     environment:
@@ -26,7 +26,7 @@ services:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_PASSWORD: wordpress
 
-# Add definition to create volume mysql-data referenced above
+# Add volumes definition to create volume mysql-data referenced above
 volumes:
   mysql-data:
     driver: cio
