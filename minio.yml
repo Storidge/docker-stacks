@@ -20,7 +20,7 @@ services:
       - minionet
     deploy:
       restart_policy:
-        delay: 10s
+        delay: 1s
         max_attempts: 10
         window: 60s
     command: server /export 
