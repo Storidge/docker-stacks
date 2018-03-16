@@ -25,6 +25,8 @@ services:
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_PASSWORD: wordpress
+    deploy:
+      mode: global
 
 # Add volumes definition to create volume mysql-data referenced above
 volumes:
