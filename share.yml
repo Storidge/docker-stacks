@@ -1,0 +1,46 @@
+# share.yml
+
+# Use with SHARE profile to create two shared volumes db1_logs and db2_logs on same node
+#docker stack deploy --compose-file share.yml test
+
+version: '3.7'
+services:
+  db1:
+    image: mysql:5.7
+    volumes:
+      - db1:/var/lib/mysql
+      - db1_logs:/log1
+      - db2_logs:/log2
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  db2:
+    image: mysql:5.7
+    volumes:
+      - db2:/var/lib/mysql
+      - db2_logs:/log2
+      - db1_logs:/log1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+volumes:
+  db1:
+    driver: cio
+  db2:
+    driver: cio
+  db1_logs:
+    driver: cio
+    driver_opts:
+      profile: "SHARE"
+  db2_logs:
+    driver: cio
+    driver_opts:
+      profile: "SHARE"
