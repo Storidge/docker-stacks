@@ -1,0 +1,71 @@
+# share.yml
+
+# Use with SHARE profile to create three shared volumes for db1 on same node
+#docker stack deploy --compose-file share3.yml test
+
+version: '3.7'
+services:
+  db1:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    depends_on:
+      - db2
+      - db3
+    volumes:
+      - db1:/var/lib/mysql
+      - db1_logs:/log1
+      - db2_logs:/log2
+      - db3_logs:/log3
+
+  db2:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    depends_on:
+      - db3
+    volumes:
+      - db2:/var/lib/mysql
+      - db2_logs:/log2
+      # add dependency volume on db3_logs
+      - db3_logs:/log3
+
+  db3:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - db3:/var/lib/mysql
+      - db3_logs:/log3
+
+volumes:
+  db1:
+    driver: cio
+  db2:
+    driver: cio
+  db3:
+    driver: cio
+  db1_logs:
+    driver: cio
+    driver_opts:
+      profile: "SHARE"
+  db2_logs:
+    driver: cio
+    driver_opts:
+      profile: "SHARE"
+  db3_logs:
+    driver: cio
+    driver_opts:
+      profile: "SHARE"
