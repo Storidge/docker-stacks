@@ -1,0 +1,30 @@
+# mongo3.yml
+#docker stack deploy -c mongo3.yml test
+
+version: '3.4'
+
+services:
+  mongo:
+    image: mongo:4.2.0
+    deploy:
+      replicas: 3
+    volumes:
+      - mongoData:/data/db
+      - mongoConfig:/data/configdb
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+volumes:
+  mongoData:
+    driver: cio
+    driver_opts:
+      profile: "GOLD"
+    name: '{{.Service.Name}}-{{.Task.Slot}}-data'
+  mongoConfig:
+    driver: cio
+    driver_opts:
+      profile: "GOLD"
+    name: '{{.Service.Name}}-{{.Task.Slot}}-config'
+
+networks:
+  mongo:
+    driver: overlay
