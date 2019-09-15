@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  mysql:
+    image: mysql
+    deploy:
+      replicas: 10
+
+    volumes:
+      - "mysql:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+volumes:
+  mysql:
+    driver: cio
+    driver_opts:
+      profile: "MYSQL"
+    name: '{{.Service.Name}}-{{.Task.Slot}}'
+
