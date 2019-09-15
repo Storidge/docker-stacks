@@ -1,3 +1,6 @@
+# mysql10.yml
+#docker stack deploy -c mysql10.yml db
+
 version: '3.4'
 
 services:
