@@ -39,19 +39,20 @@ Note: Running Elasticsearch will require instances with at least 4GB memory
 
 Example sorts: 
 
+```
 sort_desc(100.0 - 100 * (node_filesystem_avail{device !~'tmpfs',device!~'by-uuid'} / node_filesystem_size{device !~'tmpfs',device!~'by-uuid'}))
 
 node_filesystem_free{mountpoint=~"/rootfs/cio.*"}
 
 (node_filesystem_size{mountpoint=~"/rootfs/cio.*"} - node_filesystem_free{mountpoint=~"/rootfs/cio.*"} ) / 1024 / 1024
-
+```
 
 6. Verify Grafana available on port 3000 
-Login as:  admin/admin
+- Login as admin/admin
 
-Add new datasource:  Select Configuration/Data Sources. Add source info e.g. Name: c1, Type: Prometheus, URL: http://192.168.1.41:9090, Access: direct
+- Add new datasource:  Select Configuration/Data Sources. Add source info e.g. Name: c1, Type: Prometheus, URL: http://192.168.1.41:9090, Access: direct
 
-Add new Dashboard:  Select Home/Import dashboard. Grafana.com dashboard:  https://grafana.com/grafana/dashboards/405, click Load. Select prometheus data source, e.g. Prometheus:  c1
+- Add new Dashboard:  Select Home/Import dashboard. Grafana.com dashboard:  https://grafana.com/grafana/dashboards/405, click Load. Select prometheus data source, e.g. Prometheus:  c1
 Under node, check list nodes to display metrics
 
 7. Use logfiller to generate log data in container
