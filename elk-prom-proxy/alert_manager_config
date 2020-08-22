@@ -15,6 +15,6 @@ receivers:
     title: '[{{ .Status | toUpper }}] {{ .GroupLabels.service }} service is in danger!'
     title_link: 'http://prometheus.storidge.com/alerts'
     text: '{{ .CommonAnnotations.summary}}'
-    # devops-alerts channel on storidge
-    api_url: 'https://hooks.slack.com/services/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'
+    # Configure webhook on slack channel, e.g. devops-alerts
+    api_url: 'https://hooks.slack.com/services/xxxxxxxxx/yyyyyyyyy/zzzzzzzzzzzzzzzzzzzzzz'
     channel: '#devops-alerts'
