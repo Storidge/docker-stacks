@@ -1,0 +1,78 @@
+version: "3.4"
+
+services:
+  elasticsearch:
+    image: elasticsearch:5.6.8-alpine
+    networks:
+      - elk
+    # ports:
+    #   - 9200
+    #   - 9300
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        reservations:
+          memory: 2000M
+
+  logstash:
+    image: logstash:5.6.8-alpine
+    networks:
+      - elk
+    ports:
+      - 25826:25826
+      - 25827:25827
+    configs:
+      - logstash.conf
+    command: logstash -f /logstash.conf
+    environment:
+      - LOGSPOUT=ignore
+    deploy:
+      resources:
+        reservations:
+          memory: 100M
+
+  logspout:
+    image: gliderlabs/logspout:v3.2.4
+    networks:
+      - elk
+    environment:
+      - SYSLOG_FORMAT=rfc3164
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: syslog://logstash:51415
+    deploy:
+      mode: global
+
+  kibana:
+    image: kibana:5.6.8
+    networks:
+      - elk
+      - proxy
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    deploy:
+      resources:
+        reservations:
+          memory: 50M
+
+configs:
+  logstash.conf:
+    external: true
+
+volumes:
+  elasticsearch:
+    name: elasticsearch
+    driver: cio
+    driver_opts:
+      capacity: 1
+
+networks:
+  elk:
+    driver: overlay
+  proxy:
+    external: true
+  monitor:
+    external: true

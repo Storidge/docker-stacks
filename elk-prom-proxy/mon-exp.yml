@@ -1,0 +1,140 @@
+version: "3"
+
+networks:
+  monitor:
+    external: true
+  proxy:
+    external: true
+
+services:
+  cadvisor-sm:
+    image: google/cadvisor:v0.28.3
+    networks:
+      - monitor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - com.df.notify=true
+        - com.df.scrapePort=8080
+        - com.df.alertName=memlimit
+        - com.df.alertIf=@service_mem_limit:0.8
+        - com.df.alertFor=30s
+      resources:
+        reservations:
+          cpus: "0.40"
+          memory: 85M # was from other source 64M
+        limits:
+          cpus: "0.60"
+          memory: 120M # was from other source 128M
+
+  cadvisor-sw:
+    image: google/cadvisor:v0.28.3
+    networks:
+      - monitor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == worker
+      labels:
+        - com.df.notify=true
+        - com.df.scrapePort=8080
+        - com.df.alertName=memlimit
+        - com.df.alertIf=@service_mem_limit:0.8
+        - com.df.alertFor=30s
+      resources:
+        reservations:
+          cpus: "0.40"
+          memory: 85M # was from other source 64M
+        limits:
+          cpus: "0.60"
+          memory: 120M # was from other source 128M
+
+  node-exporter-sm:
+    image: basi/node-exporter:v1.15.0
+    networks:
+      - monitor
+    environment:
+      - HOST_HOSTNAME=/etc/host_hostname
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+      - /etc/hostname:/etc/host_hostname
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - com.df.notify=true
+        - com.df.scrapePort=9100
+        - com.df.alertName.1=memload
+        - com.df.alertIf.1=@node_mem_limit:0.8
+        - com.df.alertFor.1=30s
+        - com.df.alertName.2=diskload
+        - com.df.alertIf.2=@node_fs_limit:0.8
+        - com.df.alertFor.2=30s
+        - com.df.alertName.3=memlimit
+        - com.df.alertIf.3=@service_mem_limit:0.8
+        - com.df.alertFor.3=30s
+      resources:
+        reservations:
+          cpus: "0.10"
+          memory: 20M # was from other source 16M
+        limits:
+          cpus: "0.20"
+          memory: 40M # was from other source 32M
+    command: '--path.procfs /host/proc --path.sysfs /host/sys --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)" --collector.textfile.directory /etc/node-exporter/'
+
+  node-exporter-sw:
+    image: basi/node-exporter:v1.15.0
+    networks:
+      - monitor
+    environment:
+      - HOST_HOSTNAME=/etc/host_hostname
+    volumes:
+      - /proc:/host/proc
+      - /sys:/host/sys
+      - /:/rootfs
+      - /etc/hostname:/etc/host_hostname
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == worker
+      labels:
+        - com.df.notify=true
+        - com.df.scrapePort=9100
+        - com.df.alertName.1=memload
+        - com.df.alertIf.1=@node_mem_limit:0.8
+        - com.df.alertFor.1=30s
+        - com.df.alertName.2=diskload
+        - com.df.alertIf.2=@node_fs_limit:0.8
+        - com.df.alertFor.2=30s
+        - com.df.alertName.3=memlimit
+        - com.df.alertIf.3=@service_mem_limit:0.8
+        - com.df.alertFor.3=30s
+      resources:
+        reservations:
+          cpus: "0.10"
+          memory: 20M # was from other source 16M
+        limits:
+          cpus: "0.20"
+          memory: 40M # was from other source 32M
+    command: '--path.procfs /host/proc --path.sysfs /host/sys --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($$|/)" --collector.textfile.directory /etc/node-exporter/'

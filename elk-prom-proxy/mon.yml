@@ -1,0 +1,101 @@
+version: "3.4"
+
+services:
+  db:
+    image: vfarcic/docker-flow-monitor:2-18.03.11-57
+    volumes:
+      - prometheus:/prometheus
+    networks:
+      - monitor
+      - proxy
+    ports:
+      - 9090:9090
+    environment:
+      - LISTENER_ADDRESS=swarm-listener
+      - GLOBAL_SCRAPE_INTERVAL=10s
+      - ARG_ALERTMANAGER_URL=http://alert-manager:9093
+      - DF_SCRAPE_TARGET_LABELS=env,metricType
+    deploy:
+      labels:
+        - com.df.notify=true
+        - com.df.alertName=memlimit
+        - com.df.alertIf=@service_mem_limit:0.8
+        - com.df.alertFor=30s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      placement:
+        constraints: [node.role == worker]
+      resources:
+        reservations:
+          memory: 1600M 
+        limits:
+          memory: 2000M
+
+  alert-manager:
+    image: prom/alertmanager:v0.14.0
+    configs:
+      - alert_manager_config
+    networks:
+      - monitor
+    command: "--config.file=/alert_manager_config --storage.path=/alertmanager"
+    
+  swarm-listener:
+    image: vfarcic/docker-flow-swarm-listener:18.03.25-41
+    networks:
+      - monitor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DF_NOTIFY_CREATE_SERVICE_URL=http://db:8080/v1/docker-flow-monitor/reconfigure
+      - DF_NOTIFY_REMOVE_SERVICE_URL=http://db:8080/v1/docker-flow-monitor/remove
+      - DF_INCLUDE_NODE_IP_INFO=true
+    deploy:
+      labels:
+        - com.df.alertName=memlimit
+        - com.df.alertIf=@service_mem_limit:0.8
+        - com.df.alertFor=30s
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        reservations:
+          memory: 10M
+        limits:
+          memory: 20M
+
+  grafana:
+    image: grafana/grafana:5.0.1
+    volumes:
+      - grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - monitor
+      - proxy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        
+volumes:
+  prometheus:
+    name: prometheus
+    driver: cio:latest
+    driver_opts:
+      capacity: 10
+
+  grafana:
+    name: grafana
+    driver: cio:latest
+    driver_opts:
+      capacity: 1
+
+configs:
+  alert_manager_config:
+    external: true
+
+networks:
+  monitor:
+    external: true
+  proxy:
+    external: true
