@@ -24,6 +24,8 @@ docker config create logstash.conf logstash.conf
 docker config create alert_manager_config alert_manager_config
 ```
 
+Note:  Update the alert_manager_config file with your own slack webhook
+
 4. Deploy stacks - elk, mon, mon-exp, proxy
 
 ```
